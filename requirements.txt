@@ -1,0 +1,15 @@
+streamlit
+mediapipe==0.10.14
+openai-whisper
+transformers
+torch
+pyaudio
+opencv-python
+scipy
+numpy
+plotly
+fpdf
+streamlit-lottie
+gTTS
+kaleido
+pygame
