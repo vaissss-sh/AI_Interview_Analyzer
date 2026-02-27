@@ -139,26 +139,26 @@ def get_radar_chart(aggregated_res):
     categories = ['Eye Contact', 'Filler Control', 'Pacing (WPM)', 'Sentiment', 'Emotional Tone', 'Stress Stability']
     values = [avg_eye, avg_fillers, avg_wpm, avg_sentiment, avg_emotion, avg_stability]
     
-    fig = go.Figure()
-    fig.add_trace(go.Scatterpolar(
-          r=values,
-          theta=categories,
-          fill='toself',
-          name='Competency Profile',
-          line_color='#38bdf8',
-          fillcolor='rgba(56, 189, 248, 0.4)'
-    ))
+    fig = go.Figure(data=[
+        go.Bar(
+            x=categories, 
+            y=values,
+            marker_color=['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'],
+            text=[f"{v:.0f}" for v in values],
+            textposition='auto',
+        )
+    ])
 
     fig.update_layout(
-      polar=dict(
-        radialaxis=dict(visible=True, range=[0, 100], color="rgba(255,255,255,0.5)"),
-        angularaxis=dict(color="rgba(255,255,255,0.8)")
-      ),
-      showlegend=False,
-      paper_bgcolor='rgba(0,0,0,0)',
-      plot_bgcolor='rgba(0,0,0,0)',
-      font=dict(color="#f8fafc", size=12),
-      margin=dict(t=40, b=40, l=40, r=40)
+        title="Holistic Competency Overview",
+        title_font=dict(color="white", size=18),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(color="#f8fafc", size=12),
+        yaxis=dict(range=[0, 100], showgrid=True, gridcolor="rgba(255,255,255,0.1)", color="rgba(255,255,255,0.8)"),
+        xaxis=dict(showgrid=False, color="rgba(255,255,255,0.8)"),
+        margin=dict(t=50, b=40, l=40, r=40),
+        showlegend=False
     )
     return fig
 
