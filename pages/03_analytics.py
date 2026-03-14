@@ -3,7 +3,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 from utils.db import get_session_by_id, get_all_sessions
-from nlp.engine import analyze_answer, get_answer_sentiment_arc
+from nlp.engine import analyze_answer, get_answer_sentiment_arc, generate_word_cloud_data
 from nlp.star_detector import detect_star_components, get_star_feedback
 
 st.set_page_config(page_title="Analytics Dashboard", layout="wide")
@@ -123,29 +123,65 @@ with tab1:
         )
         st.plotly_chart(fig_q, use_container_width=True)
     
-    # Sentiment Arc
-    st.subheader("Sentiment Arc Across Answers")
+    # Sentiment Arc & Response Length
+    st.subheader("Response Analysis")
     if questions:
-        transcripts_list = [q.get('transcript', '') or '' for q in questions]
-        sentiment_arc = get_answer_sentiment_arc(transcripts_list)
+        transcripts_list = [q.get('answer_transcript', '') or '' for q in questions]
         
-        fig_sent = go.Figure()
-        fig_sent.add_trace(go.Scatter(
-            x=[f"Q{i+1}" for i in range(len(sentiment_arc))],
-            y=sentiment_arc,
-            mode='lines+markers',
-            line=dict(color='#6C63FF', width=3),
-            marker=dict(size=10),
-            fill='tozeroy',
-            fillcolor='rgba(108, 99, 255, 0.1)'
-        ))
-        fig_sent.add_hline(y=50, line_dash="dash", line_color="gray", annotation_text="Neutral")
-        fig_sent.update_layout(
-            yaxis=dict(range=[0, 100], title="Sentiment (0=Neg, 100=Pos)"),
-            height=300,
-            margin=dict(l=40, r=10, t=10, b=40)
-        )
-        st.plotly_chart(fig_sent, use_container_width=True)
+        col_sent, col_len = st.columns(2)
+        
+        with col_sent:
+            sentiment_arc = get_answer_sentiment_arc(transcripts_list)
+            fig_sent = go.Figure()
+            fig_sent.add_trace(go.Scatter(
+                x=[f"Q{i+1}" for i in range(len(sentiment_arc))],
+                y=sentiment_arc,
+                mode='lines+markers',
+                line=dict(color='#6C63FF', width=3),
+                marker=dict(size=10),
+                fill='tozeroy',
+                fillcolor='rgba(108, 99, 255, 0.1)'
+            ))
+            fig_sent.add_hline(y=50, line_dash="dash", line_color="gray", annotation_text="Neutral")
+            fig_sent.update_layout(
+                title="Sentiment Arc",
+                yaxis=dict(range=[0, 100], title="Sentiment (0=Neg, 100=Pos)"),
+                height=300,
+                margin=dict(l=40, r=10, t=30, b=40)
+            )
+            st.plotly_chart(fig_sent, use_container_width=True)
+            
+        with col_len:
+            word_counts = [len(t.split()) for t in transcripts_list]
+            fig_len = go.Figure()
+            fig_len.add_trace(go.Bar(
+                x=[f"Q{i+1}" for i in range(len(word_counts))],
+                y=word_counts,
+                marker_color='#FF9800',
+                text=[f"{w} words" for w in word_counts],
+                textposition='outside'
+            ))
+            fig_len.update_layout(
+                title="Response Length (Words)",
+                yaxis=dict(title="Word Count"),
+                height=300,
+                margin=dict(l=40, r=10, t=30, b=40)
+            )
+            st.plotly_chart(fig_len, use_container_width=True)
+            
+    st.markdown("---")
+    st.subheader("Vocabulary Word Cloud")
+    if questions:
+        transcripts_list = [q.get('answer_transcript', '') or '' for q in questions]
+        cloud_data = generate_word_cloud_data(transcripts_list)
+        if cloud_data:
+            # Simple bar chart of top 10 words if we don't have python wordcloud module rendered
+            df_words = pd.DataFrame(list(cloud_data.items())[:15], columns=['Word', 'Frequency'])
+            fig_cloud = px.bar(df_words, x='Frequency', y='Word', orientation='h', title="Most Frequently Used Action Words")
+            fig_cloud.update_layout(yaxis={'categoryorder':'total ascending'}, height=400)
+            st.plotly_chart(fig_cloud, use_container_width=True)
+        else:
+            st.info("Not enough vocabulary data to generate a word cloud yet.")
 
 # ──────────────────────────────────────────────────────────────────────
 # TAB 2: EMOTION & VOICE
@@ -240,7 +276,7 @@ with tab3:
     st.subheader("Answer-by-Answer Breakdown")
     
     for idx, q in enumerate(questions):
-        transcript = q.get('transcript', '') or ''
+        transcript = q.get('answer_transcript', '') or ''
         
         with st.expander(f"Q{idx+1}: {q['text'][:80]}{'...' if len(q['text']) > 80 else ''}", expanded=(idx == 0)):
             st.markdown(f"**Question:** {q['text']}")
@@ -287,7 +323,7 @@ with tab4:
     has_any_transcript = False
     
     for idx, q in enumerate(questions):
-        answer = q.get('transcript', '') or ''
+        answer = q.get('answer_transcript', '') or ''
         
         st.markdown(f"### Question {idx + 1}")
         st.markdown(f"**🎤 Interviewer:** {q['text']}")
