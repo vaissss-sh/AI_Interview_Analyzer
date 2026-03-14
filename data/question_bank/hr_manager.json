@@ -1,0 +1,158 @@
+{
+    "junior": [
+        {
+            "id": 1,
+            "category": "behavioral",
+            "question": "Tell me about a time you helped resolve a conflict between coworkers."
+        },
+        {
+            "id": 2,
+            "category": "technical",
+            "question": "What metrics do you use to measure recruitment success?"
+        },
+        {
+            "id": 3,
+            "category": "situational",
+            "question": "An employee complains about their manager showing favoritism. How do you handle it?"
+        },
+        {
+            "id": 4,
+            "category": "behavioral",
+            "question": "Describe a time you had to deliver difficult news to an employee."
+        },
+        {
+            "id": 5,
+            "category": "technical",
+            "question": "What are your strategies for sourcing diverse candidates?"
+        },
+        {
+            "id": 6,
+            "category": "situational",
+            "question": "A top-performing candidate has negative references. What do you recommend?"
+        },
+        {
+            "id": 7,
+            "category": "behavioral",
+            "question": "Give an example of a time you successfully onboarded a new employee."
+        },
+        {
+            "id": 8,
+            "category": "technical",
+            "question": "Explain the basic requirements for maintaining compliance with labor laws."
+        },
+        {
+            "id": 9,
+            "category": "situational",
+            "question": "Two departments are fighting over desk space. How do you mediate?"
+        },
+        {
+            "id": 10,
+            "category": "behavioral",
+            "question": "Tell me about a creative way you engaged employees in a company event."
+        }
+    ],
+    "mid": [
+        {
+            "id": 11,
+            "category": "strategy",
+            "question": "How do you build a strong employer brand in a competitive job market?"
+        },
+        {
+            "id": 12,
+            "category": "behavioral",
+            "question": "Describe a time you identified a gap in company policy and successfully updated it."
+        },
+        {
+            "id": 13,
+            "category": "situational",
+            "question": "An employee requests a significant salary increase outside the normal review cycle. How do you respond?"
+        },
+        {
+            "id": 14,
+            "category": "technical",
+            "question": "How do you evaluate and implement an new ATS or HRIS system?"
+        },
+        {
+            "id": 15,
+            "category": "behavioral",
+            "question": "Tell me about a time you coached a manager through an employee performance issue."
+        },
+        {
+            "id": 16,
+            "category": "strategy",
+            "question": "What is your approach to reducing employee turnover?"
+        },
+        {
+            "id": 17,
+            "category": "situational",
+            "question": "A high-performing employee is creating a toxic environment. How do you manage the situation?"
+        },
+        {
+            "id": 18,
+            "category": "technical",
+            "question": "What steps do you take to design competitive compensation packages?"
+        },
+        {
+            "id": 19,
+            "category": "behavioral",
+            "question": "Describe a difficult termination you had to conduct and how you ensured it was handled legally and professionally."
+        },
+        {
+            "id": 20,
+            "category": "situational",
+            "question": "The company needs to enact sudden budget cuts affecting benefits. How do you communicate this?"
+        }
+    ],
+    "senior": [
+        {
+            "id": 21,
+            "category": "strategy",
+            "question": "How do you align HR strategy with the overall corporate business objectives?"
+        },
+        {
+            "id": 22,
+            "category": "behavioral",
+            "question": "Tell me about a time you led the HR aspect of a major organizational restructuring or M&A."
+        },
+        {
+            "id": 23,
+            "category": "situational",
+            "question": "The executive team wants to mandate a return to the office, but internal surveys show massive resistance. How do you advise them?"
+        },
+        {
+            "id": 24,
+            "category": "strategy",
+            "question": "How do you build and sustain a pipeline for executive leadership succession?"
+        },
+        {
+            "id": 25,
+            "category": "behavioral",
+            "question": "Describe a time you had to change the fundamental culture of a department or company."
+        },
+        {
+            "id": 26,
+            "category": "technical",
+            "question": "How do you approach predictive analytics in HR for workforce planning?"
+        },
+        {
+            "id": 27,
+            "category": "situational",
+            "question": "The company is facing a public PR crisis regarding workplace culture. What is your HR response plan?"
+        },
+        {
+            "id": 28,
+            "category": "behavioral",
+            "question": "Tell me about a time you disagreed with the CEO on a major talent decision."
+        },
+        {
+            "id": 29,
+            "category": "strategy",
+            "question": "What is your philosophy on modern performance management beyond annual reviews?"
+        },
+        {
+            "id": 30,
+            "category": "situational",
+            "question": "You discover wide-spread pay inequity across a large department. What is your step-by-step approach to fixing it?"
+        }
+    ]
+}

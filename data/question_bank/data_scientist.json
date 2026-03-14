@@ -1,0 +1,158 @@
+{
+    "junior": [
+        {
+            "id": 1,
+            "category": "technical",
+            "question": "What is the difference between supervised and unsupervised learning?"
+        },
+        {
+            "id": 2,
+            "category": "behavioral",
+            "question": "Tell me about a time you found a surprising insight in a dataset."
+        },
+        {
+            "id": 3,
+            "category": "situational",
+            "question": "Your model has high accuracy on training data but performs poorly in testing. What do you do?"
+        },
+        {
+            "id": 4,
+            "category": "technical",
+            "question": "Explain p-value to someone without a technical background."
+        },
+        {
+            "id": 5,
+            "category": "behavioral",
+            "question": "Describe a project where you had to clean incredibly messy data."
+        },
+        {
+            "id": 6,
+            "category": "situational",
+            "question": "Stakeholders want a predictive model built, but you don't have enough data. How do you proceed?"
+        },
+        {
+            "id": 7,
+            "category": "technical",
+            "question": "What are the assumptions of linear regression?"
+        },
+        {
+            "id": 8,
+            "category": "behavioral",
+            "question": "Give an example of a time you communicated complex analytical results to business users."
+        },
+        {
+            "id": 9,
+            "category": "situational",
+            "question": "You realize there was a major flaw in your data extraction logic after presenting your findings. What do you do?"
+        },
+        {
+            "id": 10,
+            "category": "technical",
+            "question": "How do you handle missing or imbalanced data?"
+        }
+    ],
+    "mid": [
+        {
+            "id": 11,
+            "category": "technical",
+            "question": "Explain the bias-variance tradeoff and how it impacts model choice."
+        },
+        {
+            "id": 12,
+            "category": "behavioral",
+            "question": "Tell me about a time you deployed a model into production."
+        },
+        {
+            "id": 13,
+            "category": "situational",
+            "question": "The business team doesn't trust the predictions of a black-box model. How do you build trust?"
+        },
+        {
+            "id": 14,
+            "category": "technical",
+            "question": "How would you approach building a recommendation engine for an e-commerce site?"
+        },
+        {
+            "id": 15,
+            "category": "behavioral",
+            "question": "Describe a time when your analytical model contradicted common business intuition."
+        },
+        {
+            "id": 16,
+            "category": "situational",
+            "question": "Your model's performance slowly degrades over time in production. How do you diagnose and fix it?"
+        },
+        {
+            "id": 17,
+            "category": "technical",
+            "question": "What is your approach to hyperparameter tuning and model evaluation?"
+        },
+        {
+            "id": 18,
+            "category": "behavioral",
+            "question": "Tell me about a time you mentored a junior analyst or scientist."
+        },
+        {
+            "id": 19,
+            "category": "situational",
+            "question": "You receive a vague request like 'predict which customers will churn'. How do you formalize the problem?"
+        },
+        {
+            "id": 20,
+            "category": "technical",
+            "question": "Discuss the pros and cons of using Deep Learning vs traditional ML models for tabular data."
+        }
+    ],
+    "senior": [
+        {
+            "id": 21,
+            "category": "strategy",
+            "question": "How do you design an enterprise-wide data strategy from scratch?"
+        },
+        {
+            "id": 22,
+            "category": "behavioral",
+            "question": "Tell me about a time you built a data science team and defined its culture."
+        },
+        {
+            "id": 23,
+            "category": "situational",
+            "question": "A C-level executive wants you to use AI to solve a problem that is better solved with a simple heuristic. How do you manage this?"
+        },
+        {
+            "id": 24,
+            "category": "technical",
+            "question": "How do you architect an MLOps pipeline for continuous training and monitoring?"
+        },
+        {
+            "id": 25,
+            "category": "behavioral",
+            "question": "Describe a time you led a data science initiative that transformed a core business process."
+        },
+        {
+            "id": 26,
+            "category": "strategy",
+            "question": "How do you measure and report the ROI of a data science team?"
+        },
+        {
+            "id": 27,
+            "category": "situational",
+            "question": "There are ethical concerns surrounding data privacy in a new tracking feature. How do you address this?"
+        },
+        {
+            "id": 28,
+            "category": "behavioral",
+            "question": "Tell me about a time you handled competing priorities across multiple business units requiring data science resources."
+        },
+        {
+            "id": 29,
+            "category": "technical",
+            "question": "Explain your approach to implementing scalable, real-time streaming analytics architectures."
+        },
+        {
+            "id": 30,
+            "category": "situational",
+            "question": "If you were to join as our Head of Data, what are the first 3 things you would audit?"
+        }
+    ]
+}

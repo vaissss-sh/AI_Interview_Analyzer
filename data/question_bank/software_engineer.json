@@ -1,0 +1,38 @@
+{
+  "junior": [
+    {"id": 1, "category": "technical", "question": "Explain a time when you had to debug a complex issue in a project."},
+    {"id": 2, "category": "technical", "question": "What is the difference between an interface and an abstract class?"},
+    {"id": 3, "category": "behavioral", "question": "Describe a situation where you had to work with a difficult team member."},
+    {"id": 4, "category": "situational", "question": "What would you do if you were falling behind on a deadline?"},
+    {"id": 5, "category": "technical", "question": "How do you ensure your code is readable and maintainable?"},
+    {"id": 6, "category": "problem-solving", "question": "Walk me through how you approach a completely new technology you have to learn."},
+    {"id": 7, "category": "technical", "question": "Explain the concept of REST APIs."},
+    {"id": 8, "category": "behavioral", "question": "Can you share an example of a time you failed and what you learned?"},
+    {"id": 9, "category": "situational", "question": "If your code breaks in production, what are your immediate first steps?"},
+    {"id": 10, "category": "problem-solving", "question": "How do you optimize a slow database query?"}
+  ],
+  "mid": [
+    {"id": 11, "category": "technical", "question": "Tell me about a time you had to make a significant architectural decision."},
+    {"id": 12, "category": "behavioral", "question": "How do you mentor more junior developers on your team?"},
+    {"id": 13, "category": "situational", "question": "A product manager wants a feature by Friday, but you know it requires 2 weeks of refactoring. How do you handle it?"},
+    {"id": 14, "category": "technical", "question": "Explain the CAP theorem and how it applies to our database choices."},
+    {"id": 15, "category": "problem-solving", "question": "Describe a time you found a performance bottleneck and how you resolved it."},
+    {"id": 16, "category": "technical", "question": "What strategies do you use for ensuring microservice resilience?"},
+    {"id": 17, "category": "behavioral", "question": "Describe a time you disagreed with your manager's technical direction."},
+    {"id": 18, "category": "situational", "question": "How do you manage technical debt in the middle of an aggressive release cycle?"},
+    {"id": 19, "category": "problem-solving", "question": "Walk me through debugging a memory leak in a production application."},
+    {"id": 20, "category": "technical", "question": "How do you handle asynchronous tasks and messaging queues in scalable apps?"}
+  ],
+  "senior": [
+    {"id": 21, "category": "technical", "question": "How would you design a highly available, globally distributed system like Twitter?"},
+    {"id": 22, "category": "behavioral", "question": "Tell me about a time you led a team through a major technology migration."},
+    {"id": 23, "category": "situational", "question": "If you inherited a critical legacy codebase with no tests and low morale on the team, how would you approach the first 90 days?"},
+    {"id": 24, "category": "technical", "question": "Explain your approach to container orchestration and CI/CD at scale."},
+    {"id": 25, "category": "problem-solving", "question": "How do you handle zero-downtime database schema migrations in a high-traffic environment?"},
+    {"id": 26, "category": "technical", "question": "Discuss the trade-offs between monolithic, serverless, and microservices architectures."},
+    {"id": 27, "category": "behavioral", "question": "How do you balance long-term engineering vision with short-term business goals?"},
+    {"id": 28, "category": "situational", "question": "You discover a critical security vulnerability that's been live for months. What is your immediate and follow-up response?"},
+    {"id": 29, "category": "problem-solving", "question": "Tell me about a time a project was failing under your leadership and how you course-corrected."},
+    {"id": 30, "category": "technical", "question": "How do you measure and ensure system health, specifically SLIs, SLOs, and SLAs?"}
+  ]
+}

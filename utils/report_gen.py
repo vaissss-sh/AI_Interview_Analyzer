@@ -1,78 +1,126 @@
 import os
-from fpdf import FPDF
-import datetime
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+from utils.db import get_session_by_id
 
-class ReportGenerator:
-    def __init__(self, filename="Interview_Performance_Portfolio.pdf"):
-        self.filename = filename
+def generate_report(session_id: int, charts_data: dict = None) -> str:
+    """
+    Generates a PDF report for a given session.
+    charts_data can contain paths to saved chart images (e.g. radar chart).
+    Returns the file path to the generated PDF.
+    """
+    session_data = get_session_by_id(session_id)
+    if not session_data:
+        raise ValueError("Session not found.")
         
-    def generate(self, aggregated_results, overall_score_metrics):
-        """
-        aggregated_results: List of Dicts (one for each question)
-        overall_score_metrics: Dict with averages of emotions, final score, etc.
-        """
-        pdf = FPDF()
-        pdf.set_auto_page_break(auto=True, margin=15)
+    output_dir = "outputs"
+    os.makedirs(output_dir, exist_ok=True)
+    filename = f"report_{session_id}.pdf"
+    filepath = os.path.join(output_dir, filename)
+    
+    doc = SimpleDocTemplate(filepath, pagesize=letter)
+    styles = getSampleStyleSheet()
+    title_style = styles['Title']
+    heading_style = styles['Heading2']
+    normal_style = styles['Normal']
+    
+    elements = []
+    
+    # Cover / Header
+    elements.append(Paragraph("InterviewIQ Evaluation Report", title_style))
+    elements.append(Spacer(1, 20))
+    
+    # Candidate Info
+    cand = session_data.get('candidate', {})
+    elements.append(Paragraph(f"<b>Candidate:</b> {cand.get('name')}", normal_style))
+    elements.append(Paragraph(f"<b>Email:</b> {cand.get('email')}", normal_style))
+    elements.append(Paragraph(f"<b>Role:</b> {cand.get('role')}", normal_style))
+    elements.append(Spacer(1, 20))
+    
+    # Metrics
+    metrics = session_data.get('metrics', {})
+    elements.append(Paragraph("Overall Performance", heading_style))
+    metrics_data = [
+        ["Overall Score", f"{metrics.get('overall_score', 0):.1f}/100"],
+        ["Final Grade", metrics.get('grade', 'N/A')]
+    ]
+    t_metrics = Table(metrics_data, colWidths=[200, 200])
+    t_metrics.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.lightgrey),
+        ('GRID', (0,0), (-1,-1), 1, colors.black)
+    ]))
+    elements.append(t_metrics)
+    elements.append(Spacer(1, 20))
+    
+    # Breakdown
+    bd = session_data.get('breakdown', {})
+    if bd:
+        elements.append(Paragraph("Score Breakdown", heading_style))
+        bd_data = [
+            ["Communication", f"{bd.get('communication', 0):.1f}"],
+            ["Confidence", f"{bd.get('confidence', 0):.1f}"],
+            ["Technical", f"{bd.get('technical', 0):.1f}"],
+            ["Emotional IQ", f"{bd.get('emotional_iq', 0):.1f}"],
+            ["Engagement", f"{bd.get('engagement', 0):.1f}"],
+            ["Professionalism", f"{bd.get('professionalism', 0):.1f}"]
+        ]
+        t_bd = Table(bd_data, colWidths=[200, 200])
+        t_bd.setStyle(TableStyle([
+            ('GRID', (0,0), (-1,-1), 1, colors.black)
+        ]))
+        elements.append(t_bd)
+        elements.append(Spacer(1, 20))
         
-        # Cover Page
-        pdf.add_page()
-        pdf.set_font("Arial", 'B', 24)
-        pdf.cell(200, 40, txt="AI-Elite Interviewer Platform", ln=True, align='C')
-        pdf.set_font("Arial", '', 16)
-        pdf.cell(200, 10, txt="Comprehensive Performance Portfolio", ln=True, align='C')
-        pdf.set_font("Arial", 'I', 12)
-        date_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        pdf.cell(200, 10, txt=f"Date: {date_str}", ln=True, align='C')
+    # Transcript Highlights
+    elements.append(Paragraph("Interview Transcript Highlights", heading_style))
+    questions = session_data.get('questions', [])
+    for q in questions:
+        elements.append(Paragraph(f"<b>Q:</b> {q.get('text', '')}", normal_style))
+        elements.append(Paragraph(f"<i>Ans:</i> {q.get('transcript', '')}", normal_style))
+        elements.append(Paragraph(f"Score: {q.get('score', 0):.1f}", normal_style))
+        elements.append(Spacer(1, 10))
         
-        pdf.ln(20)
+    doc.build(elements)
+    return filepath
+
+def export_transcript(session_id: int) -> str:
+    """Exports just the transcript to a simple text file."""
+    session_data = get_session_by_id(session_id)
+    if not session_data:
+        raise ValueError("Session not found.")
         
-        # Overall Summary
-        pdf.set_font("Arial", 'B', 16)
-        pdf.cell(200, 10, txt="Executive Summary", ln=True)
-        pdf.line(10, 100, 200, 100)
-        pdf.ln(5)
+    output_dir = "outputs"
+    os.makedirs(output_dir, exist_ok=True)
+    filepath = os.path.join(output_dir, f"transcript_{session_id}.txt")
+    
+    with open(filepath, 'w', encoding='utf-8') as f:
+        cand = session_data.get('candidate', {})
+        f.write(f"Transcript for {cand.get('name', 'Unknown')}\n")
+        f.write("="*40 + "\n\n")
         
-        pdf.set_font("Arial", '', 12)
-        pdf.cell(200, 10, txt=f"Final Confidence Score: {overall_score_metrics.get('final_score', 0):.1f}/100", ln=True)
-        pdf.cell(200, 10, txt=f"Dominant Emotion Profile: {overall_score_metrics.get('avg_emotion', 'Neutral')}", ln=True)
-        pdf.cell(200, 10, txt=f"Average Speaking Pace (WPM): {overall_score_metrics.get('avg_wpm', 0):.1f}", ln=True)
-        pdf.cell(200, 10, txt=f"Total Filler Words: {overall_score_metrics.get('total_fillers', 0)}", ln=True)
-        pdf.cell(200, 10, txt=f"Average Eye Contact: {overall_score_metrics.get('avg_eye_contact', 0):.1f}%", ln=True)
-        
-        # Insert Plotly radar chart if exists
-        radar_path = "temp_radar_chart.png"
-        if os.path.exists(radar_path):
-            pdf.ln(10)
-            pdf.image(radar_path, x=10, w=180)
+        for q in session_data.get('questions', []):
+            f.write(f"Interviewer: {q.get('text', '')}\n")
+            f.write(f"Candidate: {q.get('transcript', '')}\n")
+            f.write("-" * 20 + "\n")
             
-        # Per-Question Breakdown
-        pdf.add_page()
-        pdf.set_font("Arial", 'B', 16)
-        pdf.cell(200, 10, txt="Detailed Question Breakdown", ln=True)
-        pdf.line(10, 25, 200, 25)
-        pdf.ln(5)
-        
-        for idx, res in enumerate(aggregated_results):
-            pdf.set_font("Arial", 'B', 14)
-            pdf.multi_cell(0, 10, txt=f"Q{idx+1}: {res['question']}")
-            
-            pdf.set_font("Arial", '', 12)
-            pdf.multi_cell(0, 8, txt=f"Response Transcript: {res['transcript']}")
-            
-            # Metrics
-            pdf.set_font("Arial", 'I', 11)
-            pdf.cell(200, 8, txt=f">> Metrics | Score: {res['score']}/100 | WPM: {res['wpm']} | Fillers: {res['fillers_count']} | Emotion: {res['emotion']} | Eye Contact: {res['eye_contact']:.1f}%", ln=True)
-            pdf.ln(10)
-            
-        # Sentiment Chart
-        sentiment_path = "temp_sentiment_chart.png"
-        if os.path.exists(sentiment_path):
-            pdf.add_page()
-            pdf.set_font("Arial", 'B', 16)
-            pdf.cell(200, 10, txt="Sentiment Timeline Analytics", ln=True)
-            pdf.line(10, 25, 200, 25)
-            pdf.ln(10)
-            pdf.image(sentiment_path, x=10, w=180)
-            
-        pdf.output(self.filename)
-        return self.filename
+    return filepath
+
+def export_comparison_report(session_ids_list: list) -> str:
+    """Generates a comparison PDF for multiple candidates."""
+    # Placeholder for multi-candidate comparison
+    output_dir = "outputs"
+    os.makedirs(output_dir, exist_ok=True)
+    filepath = os.path.join(output_dir, "comparison_report.pdf")
+    
+    doc = SimpleDocTemplate(filepath, pagesize=letter)
+    styles = getSampleStyleSheet()
+    elements = []
+    
+    elements.append(Paragraph("Candidate Comparison Report", styles['Title']))
+    elements.append(Spacer(1, 20))
+    elements.append(Paragraph(f"Comparing {len(session_ids_list)} candidates.", styles['Normal']))
+    
+    doc.build(elements)
+    return filepath

@@ -1,99 +1,91 @@
-def calculate_score(metrics):
+from utils.config import SCORING_WEIGHTS
+
+def fuse_scores(audio_scores: dict, vision_scores: dict, nlp_scores: dict, rubric: dict) -> dict:
     """
-    metrics = {
-        "wpm": float,
-        "transcript_length": int, # words
-        "fillers_count": int,
-        "sentiment_score": float, # 0 to 1
-        "emotion": str, 
-        "pauses_seconds": float,
-        "eye_contact_percentage": float, # 0 to 100
-        "blink_count": int,
-        "duration_minutes": float
+    Fuses individual module scores into the final 6 dimensions.
+    Returns the fused breakdown + overall_score + grade.
+    """
+    
+    # 1. Communication (NLP vocab + Audio pacing balance)
+    vocab = nlp_scores.get("vocabulary_score", 60)
+    wpm = audio_scores.get("wpm", 140)
+    # Ideal pacing ~120-160 wpm; gentle penalty outside that range
+    if 100 <= wpm <= 180:
+        wpm_score = 85
+    elif wpm == 0:
+        wpm_score = 50  # No speech detected
+    else:
+        wpm_score = max(40, 100 - abs(140 - wpm) * 0.3)
+    filler_penalty = min(15, sum(audio_scores.get("fillers", {}).values()) * 1.5)
+    communication = min(100.0, max(0.0, (vocab * 0.6 + wpm_score * 0.4) - filler_penalty))
+
+    # 2. Confidence (Voice confidence + eye contact + posture)
+    voice_conf = audio_scores.get("voice_confidence", 65)
+    eye_contact = vision_scores.get("eye_contact_percent", 70)
+    posture_bonus = 15 if vision_scores.get("posture") == "upright" else 5
+    confidence = min(100.0, max(0.0, voice_conf * 0.35 + eye_contact * 0.45 + posture_bonus + 5))
+
+    # 3. Technical (NLP keyword match + STAR method quality)
+    kw_coverage = nlp_scores.get("keyword_coverage_percent", 50)
+    star_score = nlp_scores.get("star_score", 40)
+    completeness = nlp_scores.get("completeness", 50)
+    technical = min(100.0, max(0.0, kw_coverage * 0.4 + star_score * 0.35 + completeness * 0.25))
+
+    # 4. Emotional IQ (Sentiment + positive emotion presence)
+    sentiment = nlp_scores.get("sentiment", 55)
+    emotion_summary = vision_scores.get("emotion_summary", {})
+    total_emotions = max(1, sum(emotion_summary.values()))
+    happy_ratio = emotion_summary.get("happy", 0) / total_emotions * 100 if emotion_summary else 40
+    emotional_iq = min(100.0, max(0.0, sentiment * 0.6 + happy_ratio * 0.2 + 20))
+
+    # 5. Engagement (Eye contact + completeness of answers)
+    engagement = min(100.0, max(0.0, eye_contact * 0.5 + completeness * 0.3 + 20))
+
+    # 6. Professionalism (Low silence + low stress + answer completeness)
+    silence_ratio = audio_scores.get("silence_ratio", 0.2)
+    stress_spikes = vision_scores.get("stress_spikes", 0)
+    
+    prof_base = 80  # Start with a reasonable baseline
+    prof_base -= silence_ratio * 30  # Penalize excessive silence
+    prof_base -= min(25, stress_spikes * 5)  # Penalize stress spikes
+    prof_base += completeness * 0.2  # Reward complete answers
+    professionalism = min(100.0, max(0.0, prof_base))
+
+    # Compile Breakdown
+    breakdown = {
+        "communication": round(communication, 1),
+        "confidence": round(confidence, 1),
+        "technical": round(technical, 1),
+        "emotional_iq": round(emotional_iq, 1),
+        "engagement": round(engagement, 1),
+        "professionalism": round(professionalism, 1)
     }
-    """
+
+    # Calculate Overall using config weights
+    overall_score = sum(breakdown[k] * SCORING_WEIGHTS[k] for k in breakdown.keys())
     
-    # Weights
-    W_FILLER = 0.18
-    W_WPM = 0.18
-    W_SENTIMENT = 0.12
-    W_EMOTION = 0.10
-    W_PAUSES = 0.12
-    W_EYE = 0.15
-    W_BLINK = 0.15
-    
-    # 1. Filler Density 
-    total_words = metrics.get('transcript_length', 1)
-    if total_words == 0: total_words = 1
-    
-    filler_density = metrics.get('fillers_count', 0) / total_words
-    # Assuming > 5% fillers is bad, 0% is perfect
-    filler_score = max(0, 100 - (filler_density * 2000))
-    filler_score = min(100, filler_score)
-    
-    # 2. WPM
-    wpm = metrics.get('wpm', 0)
-    if 130 <= wpm <= 160:
-        wpm_score = 100
-    elif wpm < 130:
-        wpm_score = max(0, 100 - (130 - wpm) * 1.5)
-    else:
-        wpm_score = max(0, 100 - (wpm - 160) * 1.0)
-        
-    # 3. Sentiment (0 to 1 already)
-    sentiment_score = metrics.get('sentiment_score', 0.5) * 100
-    
-    # 4. Emotion
-    emotion = metrics.get('emotion', 'neutral').lower()
-    good_emotions = ['joy', 'surprise', 'neutral', 'approval']
-    bad_emotions = ['sadness', 'fear', 'anger', 'disgust']
-    if emotion in good_emotions:
-        emotion_score = 100
-    elif emotion in bad_emotions:
-        emotion_score = 40
-    else:
-        emotion_score = 70
-        
-    # 5. Pauses (seconds)
-    duration_minutes = metrics.get('duration_minutes', 0.1)
-    if duration_minutes <= 0: duration_minutes = 0.1
-    pauses_per_min = metrics.get('pauses_seconds', 0) / duration_minutes
-    # More than 10 seconds of hesitation pauses per minute is bad
-    pause_score = max(0, 100 - (pauses_per_min * 10))
-    
-    # 6. Eye Contact (Percentage)
-    eye_score = metrics.get('eye_contact_percentage', 0)
-    
-    # 7. Blink / Stress
-    blink_count = metrics.get('blink_count', 0)
-    bpm = blink_count / duration_minutes
-    # Normal is 15-20. Under 10 or over 30 is stress/staring
-    if 10 <= bpm <= 25:
-        blink_score = 100
-    else:
-        deviation = min(abs(bpm - 17.5), 30)
-        blink_score = max(0, 100 - (deviation * 3))
-        
-    # Calculate Final Score
-    final_score = (
-        (filler_score * W_FILLER) +
-        (wpm_score * W_WPM) +
-        (sentiment_score * W_SENTIMENT) +
-        (emotion_score * W_EMOTION) +
-        (pause_score * W_PAUSES) +
-        (eye_score * W_EYE) +
-        (blink_score * W_BLINK)
-    )
-    
+    from scoring.rubric import get_grade
     return {
-        "final_score": round(final_score, 1),
-        "breakdown": {
-            "filler_score": round(filler_score, 1),
-            "wpm_score": round(wpm_score, 1),
-            "sentiment_score": round(sentiment_score, 1),
-            "emotion_score": round(emotion_score, 1),
-            "pause_score": round(pause_score, 1),
-            "eye_score": round(eye_score, 1),
-            "blink_score": round(blink_score, 1)
-        }
+        "breakdown": breakdown,
+        "overall_score": round(overall_score, 1),
+        "grade": get_grade(overall_score)
     }
+
+def detect_authenticity_score(wpm_variance: float, answer_lengths: list, star_scores: list) -> float:
+    """
+    Experimental metric: Detects if answers feel rehearsed.
+    Lower wpm variance = more rehearsed. 
+    Returns 0-100 (100 = genuine).
+    """
+    if wpm_variance < 5.0 and all(s > 90 for s in star_scores):
+        return 40.0  # Highly rehearsed
+    elif wpm_variance > 25.0:
+        return 90.0  # Very natural variations
+    return 75.0  # Average
+
+def detect_stress_index(stress_spike_count: int, max_pitch: float) -> float:
+    """Returns a composite stress index (0-100) based on vision and audio data."""
+    base_stress = min(100, stress_spike_count * 15)
+    if max_pitch > 350:
+        base_stress += 20
+    return min(100.0, base_stress)

@@ -1,0 +1,158 @@
+{
+    "junior": [
+        {
+            "id": 1,
+            "category": "technical",
+            "question": "How do you prioritize features for a product?"
+        },
+        {
+            "id": 2,
+            "category": "behavioral",
+            "question": "Tell me about a time you had to work with tight constraints."
+        },
+        {
+            "id": 3,
+            "category": "situational",
+            "question": "A key stakeholder disagrees with your roadmap. How do you handle it?"
+        },
+        {
+            "id": 4,
+            "category": "technical",
+            "question": "What metrics would you use to measure the success of a new sign-up flow?"
+        },
+        {
+            "id": 5,
+            "category": "behavioral",
+            "question": "Describe a situation where a launch didn't go as planned."
+        },
+        {
+            "id": 6,
+            "category": "situational",
+            "question": "Engineering says a requested feature is impossible. What is your next step?"
+        },
+        {
+            "id": 7,
+            "category": "product-sense",
+            "question": "How would you improve your favorite app?"
+        },
+        {
+            "id": 8,
+            "category": "technical",
+            "question": "What is the difference between Agile and Scrum?"
+        },
+        {
+            "id": 9,
+            "category": "behavioral",
+            "question": "Give an example of a time you used user feedback to change a product decision."
+        },
+        {
+            "id": 10,
+            "category": "product-sense",
+            "question": "Who are the competitors to a product you use daily, and how is it better?"
+        }
+    ],
+    "mid": [
+        {
+            "id": 11,
+            "category": "product-sense",
+            "question": "Design a ride-sharing app for children."
+        },
+        {
+            "id": 12,
+            "category": "behavioral",
+            "question": "Tell me about a time you successfully managed a cross-functional team."
+        },
+        {
+            "id": 13,
+            "category": "situational",
+            "question": "Your product engagement is dropping, but signups are rising. How do you investigate?"
+        },
+        {
+            "id": 14,
+            "category": "technical",
+            "question": "How do you balance technical debt with new feature development?"
+        },
+        {
+            "id": 15,
+            "category": "behavioral",
+            "question": "Describe a time you had to say 'no' to a major client or executive."
+        },
+        {
+            "id": 16,
+            "category": "product-sense",
+            "question": "How would you monetize a free messaging application?"
+        },
+        {
+            "id": 17,
+            "category": "situational",
+            "question": "A major bug is discovered an hour before a critical launch. What do you do?"
+        },
+        {
+            "id": 18,
+            "category": "technical",
+            "question": "Explain how you use A/B testing in your product decisions."
+        },
+        {
+            "id": 19,
+            "category": "behavioral",
+            "question": "Tell me about a time you made a decision with incomplete data."
+        },
+        {
+            "id": 20,
+            "category": "product-sense",
+            "question": "What is a product you think is poorly designed, and how would you fix it?"
+        }
+    ],
+    "senior": [
+        {
+            "id": 21,
+            "category": "strategy",
+            "question": "How do you align a company's product vision with market trends?"
+        },
+        {
+            "id": 22,
+            "category": "behavioral",
+            "question": "Tell me about a time you pivoted a product strategy entirely. What was the outcome?"
+        },
+        {
+            "id": 23,
+            "category": "situational",
+            "question": "You are expanding a successful domestic product to international markets. What is your 1-year plan?"
+        },
+        {
+            "id": 24,
+            "category": "strategy",
+            "question": "Build a product roadmap for entering the autonomous vehicle software space."
+        },
+        {
+            "id": 25,
+            "category": "behavioral",
+            "question": "How do you ensure accountability across multiple product teams without micromanaging?"
+        },
+        {
+            "id": 26,
+            "category": "strategy",
+            "question": "If you were the CEO of Netflix, what would be your top priority right now?"
+        },
+        {
+            "id": 27,
+            "category": "situational",
+            "question": "Two highly profitable product lines are cannibalizing each other. How do you address this?"
+        },
+        {
+            "id": 28,
+            "category": "behavioral",
+            "question": "Tell me about a time you failed to achieve product-market fit and how you handled the fallout."
+        },
+        {
+            "id": 29,
+            "category": "strategy",
+            "question": "How do you approach pricing strategy for an enterprise B2B SaaS product?"
+        },
+        {
+            "id": 30,
+            "category": "situational",
+            "question": "A new startup just launched a clone of your core product at half the price. What is your response strategy?"
+        }
+    ]
+}

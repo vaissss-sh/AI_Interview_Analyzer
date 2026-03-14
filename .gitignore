@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+temp/*.wav
+data/sessions.db
+models/
+logs/
+*.egg-info/
+.DS_Store
+interview_audio.wav
+temp_q_*.wav
