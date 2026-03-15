@@ -32,46 +32,32 @@ st.dataframe(
 
 st.markdown("---")
 
-col1, col2 = st.columns(2)
+st.subheader("Actions")
+selected_id = st.selectbox("Select Session ID for Action", options=filtered_df['id'].tolist())
 
-with col1:
-    st.subheader("Actions")
-    selected_id = st.selectbox("Select Session ID for Action", options=filtered_df['id'].tolist())
+c1, c2, c3 = st.columns(3)
+
+if c1.button("View Analytics", use_container_width=True):
+    st.session_state.last_session_id = selected_id
+    st.switch_page("pages/03_analytics.py")
     
-    c1, c2, c3 = st.columns(3)
-    
-    if c1.button("View Analytics", use_container_width=True):
-        st.session_state.last_session_id = selected_id
-        st.switch_page("pages/03_analytics.py")
+if c2.button("Generate PDF", use_container_width=True):
+    try:
+        path = generate_report(selected_id)
+        with open(path, "rb") as f:
+            c2.download_button(
+                label="Download Report",
+                data=f,
+                file_name=f"InterviewIQ_Report_{selected_id}.pdf",
+                mime="application/pdf"
+            )
+        st.success("Report generated!")
+    except Exception as e:
+        st.error(f"Error generating report: {e}")
         
-    if c2.button("Generate PDF", use_container_width=True):
-        try:
-            path = generate_report(selected_id)
-            with open(path, "rb") as f:
-                c2.download_button(
-                    label="Download Report",
-                    data=f,
-                    file_name=f"InterviewIQ_Report_{selected_id}.pdf",
-                    mime="application/pdf"
-                )
-            st.success("Report generated!")
-        except Exception as e:
-            st.error(f"Error generating report: {e}")
-            
-    if c3.button("Delete Session", type="primary", use_container_width=True):
-        if delete_session(selected_id):
-            st.success(f"Session {selected_id} deleted successfully.")
-            st.rerun()
-        else:
-            st.error("Failed to delete session.")
-
-with col2:
-    st.subheader("Compare Candidates")
-    compare_ids = st.multiselect("Select sessions to compare", options=filtered_df['id'].tolist(), max_selections=3)
-    
-    if len(compare_ids) > 1:
-        st.info("Comparison generated from Selected IDs (Normally renders a grouped radar chart).")
-        # In a real app we query these IDs and plot a joint radar chart in Plotly
-        st.write(f"Comparing: {compare_ids}")
+if c3.button("Delete Session", type="primary", use_container_width=True):
+    if delete_session(selected_id):
+        st.success(f"Session {selected_id} deleted successfully.")
+        st.rerun()
     else:
-        st.write("Select at least 2 candidates to view comparison.")
+        st.error("Failed to delete session.")

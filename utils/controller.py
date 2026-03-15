@@ -169,11 +169,23 @@ def end_interview():
         "sentiment": round(avg_sentiment, 1)
     }
     
-    fusion_result = fuse_scores(audio_data, vision_data, nlp_data, rubric)
-    
-    session_data["overall_score"] = fusion_result["overall_score"]
-    session_data["grade"] = fusion_result["grade"]
-    session_data["score_breakdown"] = fusion_result["breakdown"]
+    if scored_count == 0:
+        session_data["overall_score"] = 0.0
+        session_data["grade"] = "N/A (No Speech Detected)"
+        session_data["score_breakdown"] = {
+            "communication": 0.0,
+            "confidence": 0.0,
+            "technical": 0.0,
+            "emotional_iq": 0.0,
+            "engagement": 0.0,
+            "professionalism": 0.0
+        }
+    else:
+        fusion_result = fuse_scores(audio_data, vision_data, nlp_data, rubric)
+        
+        session_data["overall_score"] = fusion_result["overall_score"]
+        session_data["grade"] = fusion_result["grade"]
+        session_data["score_breakdown"] = fusion_result["breakdown"]
     
     # Actually saving happens gracefully.
     session_id = save_session(session_data)

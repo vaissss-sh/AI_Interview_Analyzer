@@ -36,7 +36,7 @@ questions = session_data.get("questions", [])
 # ══════════════════════════════════════════════════════════════════════
 # TABS
 # ══════════════════════════════════════════════════════════════════════
-tab1, tab2, tab3, tab4 = st.tabs(["📈 Overview", "😊 Emotion & Voice", "✅ Answer Quality", "📝 Full Transcript"])
+tab1, tab2 = st.tabs(["📈 Overview", "😊 Emotion & Voice"])
 
 # ──────────────────────────────────────────────────────────────────────
 # TAB 1: OVERVIEW
@@ -100,89 +100,6 @@ with tab1:
             )
             st.plotly_chart(fig_bar, use_container_width=True)
     
-    st.markdown("---")
-    
-    # Per-Question Scores Chart
-    st.subheader("Per-Question Performance")
-    if questions:
-        q_labels = [f"Q{i+1}" for i in range(len(questions))]
-        q_scores = [q.get('score', 0) for q in questions]
-        
-        fig_q = go.Figure()
-        fig_q.add_trace(go.Bar(
-            x=q_labels, y=q_scores,
-            marker_color=['#4CAF50' if s >= 70 else '#FF9800' if s >= 40 else '#F44336' for s in q_scores],
-            text=[f"{s:.0f}" for s in q_scores],
-            textposition='outside'
-        ))
-        fig_q.update_layout(
-            yaxis=dict(range=[0, 110], title="Score"),
-            xaxis=dict(title="Question"),
-            height=300,
-            margin=dict(l=40, r=10, t=10, b=40)
-        )
-        st.plotly_chart(fig_q, use_container_width=True)
-    
-    # Sentiment Arc & Response Length
-    st.subheader("Response Analysis")
-    if questions:
-        transcripts_list = [q.get('answer_transcript', '') or '' for q in questions]
-        
-        col_sent, col_len = st.columns(2)
-        
-        with col_sent:
-            sentiment_arc = get_answer_sentiment_arc(transcripts_list)
-            fig_sent = go.Figure()
-            fig_sent.add_trace(go.Scatter(
-                x=[f"Q{i+1}" for i in range(len(sentiment_arc))],
-                y=sentiment_arc,
-                mode='lines+markers',
-                line=dict(color='#6C63FF', width=3),
-                marker=dict(size=10),
-                fill='tozeroy',
-                fillcolor='rgba(108, 99, 255, 0.1)'
-            ))
-            fig_sent.add_hline(y=50, line_dash="dash", line_color="gray", annotation_text="Neutral")
-            fig_sent.update_layout(
-                title="Sentiment Arc",
-                yaxis=dict(range=[0, 100], title="Sentiment (0=Neg, 100=Pos)"),
-                height=300,
-                margin=dict(l=40, r=10, t=30, b=40)
-            )
-            st.plotly_chart(fig_sent, use_container_width=True)
-            
-        with col_len:
-            word_counts = [len(t.split()) for t in transcripts_list]
-            fig_len = go.Figure()
-            fig_len.add_trace(go.Bar(
-                x=[f"Q{i+1}" for i in range(len(word_counts))],
-                y=word_counts,
-                marker_color='#FF9800',
-                text=[f"{w} words" for w in word_counts],
-                textposition='outside'
-            ))
-            fig_len.update_layout(
-                title="Response Length (Words)",
-                yaxis=dict(title="Word Count"),
-                height=300,
-                margin=dict(l=40, r=10, t=30, b=40)
-            )
-            st.plotly_chart(fig_len, use_container_width=True)
-            
-    st.markdown("---")
-    st.subheader("Vocabulary Word Cloud")
-    if questions:
-        transcripts_list = [q.get('answer_transcript', '') or '' for q in questions]
-        cloud_data = generate_word_cloud_data(transcripts_list)
-        if cloud_data:
-            # Simple bar chart of top 10 words if we don't have python wordcloud module rendered
-            df_words = pd.DataFrame(list(cloud_data.items())[:15], columns=['Word', 'Frequency'])
-            fig_cloud = px.bar(df_words, x='Frequency', y='Word', orientation='h', title="Most Frequently Used Action Words")
-            fig_cloud.update_layout(yaxis={'categoryorder':'total ascending'}, height=400)
-            st.plotly_chart(fig_cloud, use_container_width=True)
-        else:
-            st.info("Not enough vocabulary data to generate a word cloud yet.")
-
 # ──────────────────────────────────────────────────────────────────────
 # TAB 2: EMOTION & VOICE
 # ──────────────────────────────────────────────────────────────────────
@@ -269,81 +186,3 @@ with tab2:
         fig_stress.update_layout(height=250, margin=dict(l=20, r=20, t=40, b=20))
         st.plotly_chart(fig_stress, use_container_width=True)
 
-# ──────────────────────────────────────────────────────────────────────
-# TAB 3: ANSWER QUALITY
-# ──────────────────────────────────────────────────────────────────────
-with tab3:
-    st.subheader("Answer-by-Answer Breakdown")
-    
-    for idx, q in enumerate(questions):
-        transcript = q.get('answer_transcript', '') or ''
-        
-        with st.expander(f"Q{idx+1}: {q['text'][:80]}{'...' if len(q['text']) > 80 else ''}", expanded=(idx == 0)):
-            st.markdown(f"**Question:** {q['text']}")
-            st.markdown("---")
-            
-            if transcript.strip():
-                # Run real NLP analysis
-                nlp_analysis = analyze_answer(transcript, q['text'])
-                star_analysis = detect_star_components(transcript)
-                star_feedback = get_star_feedback(star_analysis)
-                
-                # Score metric
-                sc1, sc2, sc3 = st.columns(3)
-                sc1.metric("📊 Answer Score", f"{q.get('score', 0):.1f}/100")
-                sc2.metric("📝 Completeness", f"{nlp_analysis['completeness']:.0f}%")
-                sc3.metric("💬 Sentiment", f"{nlp_analysis['sentiment']:.0f}/100")
-                
-                # STAR Analysis
-                st.markdown("**STAR Method Analysis:**")
-                star_cols = st.columns(4)
-                for i, (comp, found) in enumerate([(k, v) for k, v in star_analysis.items() if k != 'star_score']):
-                    icon = "✅" if found else "❌"
-                    star_cols[i].markdown(f"{icon} **{comp.title()}**")
-                
-                st.info(f"💡 {star_feedback}")
-                
-                # Vocabulary
-                st.markdown(f"**Vocabulary Level:** {nlp_analysis.get('vocabulary_score', 0):.0f}/100")
-                if nlp_analysis.get('key_points_covered'):
-                    st.markdown(f"**Key Topics Detected:** {', '.join(nlp_analysis['key_points_covered'])}")
-                
-                st.markdown("**Transcript:**")
-                st.caption(transcript)
-            else:
-                st.warning("No answer was recorded for this question.")
-
-# ──────────────────────────────────────────────────────────────────────
-# TAB 4: FULL TRANSCRIPT
-# ──────────────────────────────────────────────────────────────────────
-with tab4:
-    st.subheader("Complete Interview Transcript")
-    
-    transcript_text = ""
-    has_any_transcript = False
-    
-    for idx, q in enumerate(questions):
-        answer = q.get('answer_transcript', '') or ''
-        
-        st.markdown(f"### Question {idx + 1}")
-        st.markdown(f"**🎤 Interviewer:** {q['text']}")
-        
-        if answer.strip():
-            has_any_transcript = True
-            st.success(f"**💬 Candidate:** {answer}")
-            st.metric("Score", f"{q.get('score', 0):.1f}/100", label_visibility="visible")
-        else:
-            st.warning("**💬 Candidate:** _No answer recorded._")
-        
-        st.markdown("---")
-        transcript_text += f"Q{idx+1}: {q['text']}\nA: {answer if answer else '(No answer)'}\nScore: {q.get('score', 0):.1f}/100\n\n"
-    
-    if has_any_transcript:
-        st.download_button(
-            "📥 Download Full Transcript",
-            data=transcript_text,
-            file_name=f"interview_transcript_{session_id_to_load}.txt",
-            mime="text/plain"
-        )
-    else:
-        st.info("No answers were recorded during this interview session.")
