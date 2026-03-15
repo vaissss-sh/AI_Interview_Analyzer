@@ -1,16 +1,27 @@
-import spacy
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from collections import Counter
+import streamlit as st
 import re
+from collections import Counter
 
-# We use the small english model for faster loading. You must run: python -m spacy download en_core_web_sm
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    print("Warning: spacy model 'en_core_web_sm' not found. It will need to be downloaded.")
-    nlp = None
+@st.cache_resource
+def get_nlp_model():
+    try:
+        import spacy
+        return spacy.load("en_core_web_sm")
+    except OSError:
+        print("Warning: spacy model 'en_core_web_sm' not found. It will need to be downloaded.")
+        return None
+    except ImportError:
+        print("Warning: spacy not installed.")
+        return None
 
-analyzer = SentimentIntensityAnalyzer()
+@st.cache_resource
+def get_vader_analyzer():
+    try:
+        from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+        return SentimentIntensityAnalyzer()
+    except ImportError:
+        print("Warning: vaderSentiment not installed.")
+        return None
 
 def analyze_answer(text: str, question: str) -> dict:
     """
@@ -26,6 +37,7 @@ def analyze_answer(text: str, question: str) -> dict:
             "key_points_covered": []
         }
         
+    nlp = get_nlp_model()
     doc = nlp(text) if nlp else None
     
     # Simple Word Count + Structure for completeness
@@ -33,8 +45,12 @@ def analyze_answer(text: str, question: str) -> dict:
     completeness = min(100.0, (word_count / 150.0) * 100) # Assuming 150 words is a fully complete answer
     
     # Sentiment
-    sentiment_dict = analyzer.polarity_scores(text)
-    sentiment = (sentiment_dict['compound'] + 1) * 50 # Normalize -1..1 to 0..100
+    analyzer = get_vader_analyzer()
+    if analyzer:
+        sentiment_dict = analyzer.polarity_scores(text)
+        sentiment = (sentiment_dict['compound'] + 1) * 50 # Normalize -1..1 to 0..100
+    else:
+        sentiment = 50.0
     
     # Vocab score logic
     vocab_level = get_vocabulary_level(text)
@@ -70,6 +86,7 @@ def get_vocabulary_level(text: str) -> str:
 
 def extract_key_topics(text: str) -> list:
     """Extracts noun chunks and named entities as key topics."""
+    nlp = get_nlp_model()
     if not nlp: return []
     doc = nlp(text)
     
@@ -100,8 +117,9 @@ def generate_word_cloud_data(transcripts: list) -> dict:
 def get_answer_sentiment_arc(transcripts_list: list) -> list:
     """Returns a list of sentiment scores for each answer sequentially."""
     arc = []
+    analyzer = get_vader_analyzer()
     for t in transcripts_list:
-        if not t:
+        if not t or not analyzer:
             arc.append(50.0) # neutral default
         else:
             s_dict = analyzer.polarity_scores(t)

@@ -1,23 +1,33 @@
 import cv2
-import mediapipe as mp
 import numpy as np
+import streamlit as st
 
-# Initialize MediaPipe Face Mesh
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(
-    max_num_faces=1,
-    refine_landmarks=True,
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
-)
+@st.cache_resource
+def get_face_mesh_model():
+    try:
+        import mediapipe as mp
+        mp_face_mesh = mp.solutions.face_mesh
+        return mp_face_mesh.FaceMesh(
+            max_num_faces=1,
+            refine_landmarks=True,
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.5
+        )
+    except ImportError:
+        return None
 
-# Initialize MediaPipe Pose for posture
-mp_pose = mp.solutions.pose
-pose = mp_pose.Pose(
-    static_image_mode=False,
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
-)
+@st.cache_resource
+def get_pose_model():
+    try:
+        import mediapipe as mp
+        mp_pose = mp.solutions.pose
+        return mp_pose.Pose(
+            static_image_mode=False,
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.5
+        )
+    except ImportError:
+        return None
 
 def initialize_camera(camera_index: int = 0) -> cv2.VideoCapture:
     """Initializes and returns a cv2 VideoCapture object."""
@@ -38,6 +48,10 @@ def detect_face(frame: np.ndarray):
     Returns bounding box and landmarks for the primary face.
     Returns None if no face is detected.
     """
+    face_mesh = get_face_mesh_model()
+    if not face_mesh:
+        return None
+        
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = face_mesh.process(rgb_frame)
     
@@ -100,10 +114,20 @@ def detect_posture(frame: np.ndarray) -> str:
     Detects upper body posture.
     Returns 'upright', 'slouching', or 'leaning'.
     """
+    pose = get_pose_model()
+    if not pose:
+        return "unknown"
+        
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = pose.process(rgb_frame)
     
     if not results.pose_landmarks:
+        return "unknown"
+        
+    try:
+        import mediapipe as mp
+        mp_pose = mp.solutions.pose
+    except ImportError:
         return "unknown"
         
     landmarks = results.pose_landmarks.landmark

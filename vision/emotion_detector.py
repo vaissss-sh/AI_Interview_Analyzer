@@ -1,18 +1,24 @@
 import time
+import streamlit as st
 from utils.config import DEEPFACE_MODEL
 
-try:
-    from deepface import DeepFace
-    DEEPFACE_AVAILABLE = True
-except Exception:
-    DEEPFACE_AVAILABLE = False
+@st.cache_resource
+def get_deepface():
+    try:
+        from deepface import DeepFace
+        return DeepFace
+    except Exception:
+        return None
+
+DEEPFACE_AVAILABLE = True
 
 def analyze_frame(frame) -> dict:
     """
     Analyzes a single frame for emotion using DeepFace.
     Returns dict: {'emotion': 'happy', 'confidence': 98.4, 'all_scores': {...}}
     """
-    if not DEEPFACE_AVAILABLE:
+    DeepFace = get_deepface()
+    if not DeepFace:
         return {"emotion": "neutral", "confidence": 0.0, "all_scores": {}}
     try:
         # Enforce face enforcement off because we usually already cropped/detected frame 
